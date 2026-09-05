@@ -1,0 +1,1454 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F1EFEA">
+<meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cotizador">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<title>VINZON COTIZACIONES</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --paper: #F1EFEA;
+    --paper-raised: #FBFAF7;
+    --ink: #22201C;
+    --muted: #6B655A;
+    --line: #DCD6C9;
+    --accent: #B23A2E;
+    --accent-ink: #FBF4F1;
+    --accent-2: #3F6B5E;
+    --accent-2-ink: #F2F7F5;
+    --danger: #B23A2E;
+    --shadow: 0 1px 2px rgba(34,32,28,0.06), 0 6px 16px rgba(34,32,28,0.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper: #1B1916;
+      --paper-raised: #24211D;
+      --ink: #EDE9E2;
+      --muted: #A39C8C;
+      --line: #38342C;
+      --accent: #E2685A;
+      --accent-ink: #241211;
+      --accent-2: #6FA893;
+      --accent-2-ink: #0E1D19;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper: #1B1916;
+    --paper-raised: #24211D;
+    --ink: #EDE9E2;
+    --muted: #A39C8C;
+    --line: #38342C;
+    --accent: #E2685A;
+    --accent-ink: #241211;
+    --accent-2: #6FA893;
+    --accent-2-ink: #0E1D19;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  [hidden]{ display:none !important; }
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .num{ font-family:'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric:tabular-nums; }
+  h1,h2,h3{ font-family:'Fraunces', Georgia, serif; text-wrap:balance; margin:0; }
+  button{ font-family:inherit; }
+  input, select, textarea{ font-family:inherit; }
+
+  a, button, input, select, textarea{ }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--paper);
+    position:relative;
+  }
+
+  header.top{
+    padding:18px 20px 12px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:10px;
+    border-bottom:1px solid var(--line);
+  }
+  header.top .brand{ display:flex; flex-direction:column; gap:2px; }
+  header.top h1{ font-size:22px; font-weight:600; letter-spacing:-0.01em; }
+  header.top .tag{ font-size:12px; color:var(--muted); }
+  header.top .date{ font-size:11px; color:var(--muted); text-align:right; text-transform:uppercase; letter-spacing:.06em; }
+
+  main{
+    flex:1;
+    padding:16px 16px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+    overflow-y:auto;
+    padding-bottom:180px;
+  }
+
+  .screen{ display:flex; flex-direction:column; gap:16px; }
+  .screen[hidden]{ display:none; }
+
+  .card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    box-shadow:var(--shadow);
+  }
+  .card > .card-title{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    font-weight:600;
+  }
+
+  label.field{ display:flex; flex-direction:column; gap:5px; font-size:13px; color:var(--muted); min-width:0; }
+  label.field input, label.field select{
+    width:100%;
+    min-width:0;
+    font-size:15px;
+    color:var(--ink);
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:9px 10px;
+  }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; min-width:0; }
+  .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; min-width:0; }
+  .row2 > *, .row3 > *{ min-width:0; }
+
+  .chips{ display:flex; gap:8px; overflow-x:auto; padding:2px 2px 6px; -webkit-overflow-scrolling:touch; }
+  .chip{
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:2px;
+    padding:9px 12px;
+    border-radius:11px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    cursor:pointer;
+    min-width:118px;
+  }
+  .chip:active{ transform:translateY(1px); }
+  .chip .name{ font-size:13px; font-weight:600; }
+  .chip .price{ font-size:12px; color:var(--accent); }
+  .chip .ex{ font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+
+  .btn{
+    appearance:none;
+    border:none;
+    border-radius:10px;
+    padding:11px 14px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .btn-primary{ background:var(--accent); color:var(--accent-ink); }
+  .btn-secondary{ background:transparent; color:var(--ink); border:1px solid var(--line); }
+  .btn-ghost{ background:transparent; color:var(--muted); border:none; padding:6px 8px; font-size:13px; }
+  .btn-wa{ background:var(--accent-2); color:var(--accent-2-ink); }
+  .btn-block{ width:100%; }
+  .btn[disabled]{ opacity:.45; cursor:not-allowed; }
+
+  .lineitem{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .lineitem:last-child{ border-bottom:none; }
+  .lineitem .li-main{ flex:1; min-width:0; }
+  .lineitem .li-name{ font-size:14px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lineitem .li-unit{ font-size:12px; color:var(--muted); }
+  .stepper{ display:flex; align-items:center; gap:6px; }
+  .stepper button{
+    width:24px; height:24px; border-radius:7px; border:1px solid var(--line);
+    background:var(--paper); color:var(--ink); font-size:14px; line-height:1; cursor:pointer;
+  }
+  .stepper .qty{ width:22px; text-align:center; font-size:13px; }
+  .li-sub{ font-size:14px; font-weight:600; min-width:74px; text-align:right; }
+  .li-del{ background:none; border:none; color:var(--muted); font-size:16px; cursor:pointer; padding:2px 4px; }
+
+  .empty{
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    gap:8px; padding:36px 12px; color:var(--muted);
+  }
+  .empty svg{ width:34px; height:34px; opacity:.6; }
+  .empty .t1{ font-size:14px; font-weight:600; color:var(--ink); }
+  .empty .t2{ font-size:12.5px; max-width:30ch; }
+
+  .kv{ display:flex; justify-content:space-between; font-size:13px; }
+  .kv .k{ color:var(--muted); }
+  .kv .v{ }
+  .breakdown{ display:flex; flex-direction:column; gap:4px; padding-top:6px; border-top:1px dashed var(--line); }
+
+  .summarybar{
+    position:sticky;
+    bottom:64px;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:12px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .summarybar .totalrow{ display:flex; justify-content:space-between; align-items:baseline; }
+  .summarybar .totalrow .lbl{ font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .summarybar .totalrow .amt{ font-size:22px; font-weight:600; }
+  .summarybar .actions{ display:flex; gap:8px; }
+  .summarybar .actions .btn{ flex:1; }
+
+  nav.tabs{
+    position:sticky; bottom:0;
+    display:flex;
+    background:var(--paper-raised);
+    border-top:1px solid var(--line);
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+  }
+  nav.tabs button{
+    flex:1;
+    background:none; border:none; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:6px 4px;
+    color:var(--muted);
+    border-radius:10px;
+  }
+  nav.tabs button svg{ width:20px; height:20px; }
+  nav.tabs button.active{ color:var(--accent); }
+  nav.tabs button .lbl{ font-size:10.5px; font-weight:600; letter-spacing:.02em; }
+
+  .catalog-card{ }
+  .catalog-item{
+    display:flex; flex-direction:column; gap:6px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .catalog-item:last-child{ border-bottom:none; }
+  .catalog-item .head{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .catalog-item .name{ font-size:15px; font-weight:600; }
+  .catalog-item .cat{ font-size:11px; color:var(--muted); }
+  .catalog-item .price{ font-size:16px; font-weight:600; color:var(--accent); white-space:nowrap; }
+  .badge{ font-size:9px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); border:1px solid var(--line); border-radius:5px; padding:1px 5px; }
+  .item-actions{ display:flex; gap:14px; }
+  .item-actions button{ background:none; border:none; padding:0; font-size:12px; color:var(--muted); cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
+
+  .hist-item{ display:flex; flex-direction:column; gap:8px; padding:12px 0; border-bottom:1px solid var(--line); }
+  .hist-item:last-child{ border-bottom:none; }
+  .hist-item .head{ display:flex; justify-content:space-between; align-items:baseline; cursor:pointer; }
+  .hist-item .who{ font-size:14px; font-weight:600; }
+  .hist-item .when{ font-size:11px; color:var(--muted); }
+  .hist-item .amt{ font-size:15px; font-weight:600; }
+  .hist-detail{ display:flex; flex-direction:column; gap:6px; }
+  .hist-detail[hidden]{ display:none; }
+  .hist-actions{ display:flex; gap:8px; padding-top:4px; }
+  .hist-actions .btn{ flex:1; padding:8px; font-size:12.5px; }
+
+  .toast{
+    position:fixed; left:50%; bottom:96px; transform:translateX(-50%) translateY(10px);
+    background:var(--ink); color:var(--paper);
+    padding:9px 16px; border-radius:10px; font-size:13px;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+    z-index:20;
+    max-width:88%;
+    text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .inline-form{ display:flex; flex-direction:column; gap:10px; }
+  .form-actions{ display:flex; gap:8px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <h1 id="brand-title">VINZON COTIZACIONES</h1>
+      <div class="tag">Cotizador para tu marca</div>
+    </div>
+    <div class="date" id="today-label"></div>
+  </header>
+
+  <main>
+    <!-- COTIZAR -->
+    <section class="screen" id="screen-cotizar">
+      <div class="card">
+        <div class="card-title">Cliente</div>
+        <label class="field">
+          <span>Nombre (opcional)</span>
+          <input type="text" id="cliente-nombre" placeholder="Ej: María Gómez" />
+        </label>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Agregar desde catálogo</div>
+        <div class="chips" id="catalog-chips"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ítem personalizado</div>
+        <button class="btn btn-secondary btn-block" id="toggle-custom-form" type="button">+ Agregar prenda personalizada</button>
+        <div class="inline-form" id="custom-form" hidden>
+          <label class="field"><span>Descripción</span><input type="text" id="c-nombre" placeholder="Ej: Campera a medida" /></label>
+          <div class="row3">
+            <label class="field"><span>Tela</span><input type="number" id="c-tela" min="0" step="1" value="0" /></label>
+            <label class="field"><span>Mano de obra</span><input type="number" id="c-mano" min="0" step="1" value="0" /></label>
+            <label class="field"><span>Insumos</span><input type="number" id="c-insumos" min="0" step="1" value="0" /></label>
+          </div>
+          <div class="row2">
+            <label class="field"><span>Gastos grales. %</span><input type="number" id="c-gastos" min="0" step="1" /></label>
+            <label class="field"><span>Margen %</span><input type="number" id="c-margen" min="0" step="1" /></label>
+          </div>
+          <div class="kv"><span class="k">Precio unitario calculado</span><span class="v num" id="c-preview">$0</span></div>
+          <div class="row2">
+            <label class="field"><span>Cantidad</span><input type="number" id="c-cantidad" min="1" step="1" value="1" /></label>
+            <div style="align-self:flex-end;"><button class="btn btn-primary btn-block" id="c-add" type="button">Agregar</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Presupuesto actual</div>
+        <div id="quote-items"></div>
+        <div class="empty" id="quote-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h9l7 7v9H4z"/><path d="M13 4v7h7"/></svg>
+          <div class="t1">Todavía no agregaste prendas</div>
+          <div class="t2">Elegí una del catálogo o cargá una personalizada arriba.</div>
+        </div>
+        <label class="field"><span>Descuento % (opcional)</span><input type="number" id="descuento" min="0" max="100" step="1" value="0" /></label>
+      </div>
+    </section>
+
+    <!-- CATALOGO -->
+    <section class="screen" id="screen-catalogo" hidden>
+      <div class="card">
+        <div class="card-title">Tu marca</div>
+        <label class="field"><span>Nombre de tu marca (aparece arriba de todo)</span><input type="text" id="brand-name" placeholder="Ej: Mi Marca" /></label>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Valores por defecto para prendas nuevas</div>
+        <div class="row2">
+          <label class="field"><span>Gastos grales. %</span><input type="number" id="def-gastos" min="0" step="1" /></label>
+          <label class="field"><span>Margen %</span><input type="number" id="def-margen" min="0" step="1" /></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tus prendas</div>
+        <div id="catalog-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Nueva prenda</div>
+        <button class="btn btn-secondary btn-block" id="toggle-new-item" type="button">+ Agregar prenda al catálogo</button>
+        <div class="inline-form" id="new-item-form" hidden>
+          <div class="row2">
+            <label class="field"><span>Nombre</span><input type="text" id="n-nombre" placeholder="Ej: Remera oversize" /></label>
+            <label class="field"><span>Categoría</span><input type="text" id="n-categoria" placeholder="Ej: Superior" /></label>
+          </div>
+          <div class="row3">
+            <label class="field"><span>Tela</span><input type="number" id="n-tela" min="0" step="1" value="0" /></label>
+            <label class="field"><span>Mano de obra</span><input type="number" id="n-mano" min="0" step="1" value="0" /></label>
+            <label class="field"><span>Insumos</span><input type="number" id="n-insumos" min="0" step="1" value="0" /></label>
+          </div>
+          <div class="row2">
+            <label class="field"><span>Gastos grales. %</span><input type="number" id="n-gastos" min="0" step="1" /></label>
+            <label class="field"><span>Margen %</span><input type="number" id="n-margen" min="0" step="1" /></label>
+          </div>
+          <div class="kv"><span class="k">Precio de venta calculado</span><span class="v num" id="n-preview">$0</span></div>
+          <div class="form-actions">
+            <button class="btn btn-secondary" id="n-cancel" type="button" style="flex:1;">Cancelar</button>
+            <button class="btn btn-primary" id="n-save" type="button" style="flex:1;">Guardar prenda</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Actualizaciones</div>
+        <div class="kv"><span class="k">Versión instalada</span><span class="v num" id="app-version-label">$0</span></div>
+        <div style="font-size:12px;color:var(--muted);">Si te avisaron de una mejora nueva, conectate a internet y tocá el botón. En la versión que usás acá en Claude esto no aplica.</div>
+        <button class="btn btn-secondary btn-block" id="check-updates" type="button">Buscar actualizaciones</button>
+      </div>
+    </section>
+
+    <!-- REMERA DTF -->
+    <section class="screen" id="screen-remeradtf" hidden>
+      <div class="card">
+        <div class="card-title">Valores base</div>
+        <div style="font-size:12px;color:var(--muted);">Cargá tus costos reales: quedan guardados para la próxima vez.</div>
+        <label class="field"><span>Precio base remera en blanco</span><input type="number" id="r-precio-base" min="0" step="1" /></label>
+        <label class="field"><span>Precio por bajada de plancha</span><input type="number" id="r-precio-bajada" min="0" step="1" /></label>
+        <label class="field"><span>Costo de la plancha DTF completa (100 × 58 cm)</span><input type="number" id="r-costo-plancha" min="0" step="1" /></label>
+        <div class="kv"><span class="k">Costo por cm² de DTF</span><span class="v num" id="r-costo-cm2">$0</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Estampados de este pedido</div>
+        <div id="dtf-estampados"></div>
+        <div class="empty" id="dtf-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg>
+          <div class="t1">Todavía no agregaste estampados</div>
+          <div class="t2">Sumá uno por cada bajada de plancha: frente, espalda, manga...</div>
+        </div>
+        <button class="btn btn-secondary btn-block" id="toggle-estampado-form" type="button">+ Agregar estampado</button>
+        <div class="inline-form" id="estampado-form" hidden>
+          <label class="field"><span>Ubicación (opcional)</span><input type="text" id="e-nombre" placeholder="Ej: Frente" /></label>
+          <div class="row2">
+            <label class="field"><span>Ancho (cm)</span><input type="number" id="e-ancho" min="0" step="0.5" value="0" /></label>
+            <label class="field"><span>Alto (cm)</span><input type="number" id="e-alto" min="0" step="0.5" value="0" /></label>
+          </div>
+          <div class="kv"><span class="k">Área</span><span class="v num" id="e-area">0 cm²</span></div>
+          <div class="kv"><span class="k">Costo estampado (DTF + bajada)</span><span class="v num" id="e-preview">$0</span></div>
+          <button class="btn btn-primary btn-block" id="e-add" type="button">Agregar estampado</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Resumen de costos</div>
+        <div class="kv"><span class="k">Remera base</span><span class="v num" id="r-sum-base">$0</span></div>
+        <div class="kv"><span class="k">Estampados</span><span class="v num" id="r-sum-estampados">$0</span></div>
+        <div class="kv" style="font-weight:600;"><span class="k">Costo total</span><span class="v num" id="r-sum-total">$0</span></div>
+
+        <button class="btn btn-secondary btn-block" id="toggle-ganancia" type="button">▾ Definir ganancia</button>
+        <div class="inline-form" id="ganancia-panel" hidden>
+          <label class="field"><span>Ganancia % (solo sobre la remera base)</span><input type="number" id="r-margen" min="0" step="1" /></label>
+          <div class="kv"><span class="k">Ganancia</span><span class="v num" id="r-ganancia-monto">$0</span></div>
+          <div class="kv" style="font-size:18px;"><span class="k" style="color:var(--ink);font-weight:600;">Precio final</span><span class="v num" id="r-precio-final" style="font-weight:600;color:var(--accent);">$0</span></div>
+        </div>
+
+        <div class="row2">
+          <label class="field"><span>Cantidad de remeras</span><input type="number" id="r-cantidad" min="1" step="1" value="1" /></label>
+          <div style="align-self:flex-end;"><button class="btn btn-primary btn-block" id="r-add-to-quote" type="button">Agregar a cotización</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BORDADOS -->
+    <section class="screen" id="screen-bordados" hidden>
+      <div class="card">
+        <div class="card-title">Valores base para bordado</div>
+        <div style="font-size:12px;color:var(--muted);">Son valores de ejemplo: reemplazalos por lo que te cobra tu bordadora. Se cotiza por cantidad de puntadas — es el método que usa la industria porque un diseño chico y denso puede salir más caro que uno grande pero liviano.</div>
+        <label class="field"><span>Precio base de la prenda a bordar</span><input type="number" id="b-precio-base" min="0" step="1" /></label>
+        <label class="field"><span>Precio cada 1.000 puntadas</span><input type="number" id="b-precio-milpuntadas" min="0" step="1" /></label>
+        <div class="row2">
+          <label class="field"><span>Colores incluidos</span><input type="number" id="b-colores-incluidos" min="0" step="1" /></label>
+          <label class="field"><span>Recargo por color extra</span><input type="number" id="b-recargo-color" min="0" step="1" /></label>
+        </div>
+        <label class="field"><span>Digitalización de diseño nuevo (costo único)</span><input type="number" id="b-digitalizacion" min="0" step="1" /></label>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Este bordado</div>
+        <label class="field"><span>Ubicación (opcional)</span><input type="text" id="b-nombre" placeholder="Ej: Pecho" /></label>
+        <label class="field"><span>Cantidad de puntadas</span><input type="number" id="b-puntadas" min="0" step="100" value="0" /></label>
+        <button class="btn btn-ghost" id="toggle-estimador" type="button" style="align-self:flex-start;padding:0;">¿No sabés cuántas puntadas tiene? Estimar por tamaño</button>
+        <div class="inline-form" id="estimador-panel" hidden>
+          <div class="row2">
+            <label class="field"><span>Ancho (cm)</span><input type="number" id="b-est-ancho" min="0" step="0.5" value="0" /></label>
+            <label class="field"><span>Alto (cm)</span><input type="number" id="b-est-alto" min="0" step="0.5" value="0" /></label>
+          </div>
+          <label class="field">
+            <span>Densidad del diseño</span>
+            <select id="b-est-densidad">
+              <option value="150">Liviano (contorno / texto fino)</option>
+              <option value="400" selected>Medio (relleno parcial)</option>
+              <option value="800">Denso (relleno completo)</option>
+            </select>
+          </label>
+          <div class="kv"><span class="k">Puntadas estimadas</span><span class="v num" id="b-est-preview">0</span></div>
+          <button class="btn btn-secondary btn-block" id="b-est-usar" type="button">Usar esta estimación</button>
+        </div>
+
+        <label class="field"><span>Colores del diseño</span><input type="number" id="b-colores" min="0" step="1" value="2" /></label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink);">
+          <input type="checkbox" id="b-incluye-digitalizacion" style="width:auto;" />
+          <span>Incluir digitalización (diseño nuevo, se cobra una sola vez)</span>
+        </label>
+
+        <div class="breakdown">
+          <div class="kv"><span class="k">Costo por puntadas</span><span class="v num" id="b-costo-puntadas">$0</span></div>
+          <div class="kv"><span class="k">Recargo por colores extra</span><span class="v num" id="b-costo-colores">$0</span></div>
+        </div>
+        <div class="kv" style="font-weight:600;"><span class="k">Costo de este bordado</span><span class="v num" id="b-costo-item">$0</span></div>
+        <button class="btn btn-primary btn-block" id="b-add-item" type="button">+ Agregar bordado a este pedido</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Bordados de este pedido</div>
+        <div id="bordados-list"></div>
+        <div class="empty" id="bordados-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8.5"/><path d="M7 12.5c1-2.3 2-2.3 3 0s2 2.3 3 0 2-2.3 3 0"/></svg>
+          <div class="t1">Todavía no agregaste bordados</div>
+          <div class="t2">Sumá uno por cada ubicación: pecho, espalda, gorra...</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Resumen de costos</div>
+        <div class="kv"><span class="k">Prenda base</span><span class="v num" id="b-sum-base">$0</span></div>
+        <div class="kv"><span class="k">Bordados</span><span class="v num" id="b-sum-bordados">$0</span></div>
+        <div class="kv" style="font-weight:600;"><span class="k">Costo por prenda</span><span class="v num" id="b-sum-total">$0</span></div>
+        <div class="kv" id="b-sum-digitalizacion-row" style="color:var(--muted);font-size:12px;"><span class="k">+ Digitalización, aparte (única vez, no por cantidad)</span><span class="v num" id="b-sum-digitalizacion">$0</span></div>
+
+        <button class="btn btn-secondary btn-block" id="toggle-ganancia-b" type="button">▾ Definir ganancia</button>
+        <div class="inline-form" id="ganancia-panel-b" hidden>
+          <label class="field"><span>Ganancia % (solo sobre la prenda base)</span><input type="number" id="b-margen" min="0" step="1" /></label>
+          <div class="kv"><span class="k">Ganancia</span><span class="v num" id="b-ganancia-monto">$0</span></div>
+          <div class="kv" style="font-size:18px;"><span class="k" style="color:var(--ink);font-weight:600;">Precio final por prenda</span><span class="v num" id="b-precio-final" style="font-weight:600;color:var(--accent);">$0</span></div>
+        </div>
+
+        <div class="row2">
+          <label class="field"><span>Cantidad de prendas</span><input type="number" id="b-cantidad" min="1" step="1" value="1" /></label>
+          <div style="align-self:flex-end;"><button class="btn btn-primary btn-block" id="b-add-to-quote" type="button">Agregar a cotización</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORIAL -->
+    <section class="screen" id="screen-historial" hidden>
+      <div class="card">
+        <div class="card-title">Cotizaciones guardadas</div>
+        <div id="history-list"></div>
+        <div class="empty" id="history-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <div class="t1">Sin cotizaciones todavía</div>
+          <div class="t2">Cuando guardes un presupuesto en la pestaña Cotizar, va a aparecer acá.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="summarybar" id="summarybar" hidden>
+    <div class="totalrow">
+      <span class="lbl">Total</span>
+      <span class="amt num" id="quote-total">$0</span>
+    </div>
+    <div class="actions">
+      <button class="btn btn-secondary" id="save-quote" type="button">Guardar</button>
+      <button class="btn btn-wa" id="share-wa" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.6-6.1c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.7.8-.8.9-.2.2-.3.2-.5.1-1.3-.6-2.2-1.1-3-2.5-.2-.4.2-.4.6-1.2.1-.2 0-.3 0-.4-.1-.1-.6-1.5-.8-2-.2-.5-.4-.5-.6-.5h-.5c-.2 0-.5.1-.7.3-.2.3-.9 1-.9 2.3 0 1.3 1 2.6 1.1 2.8.1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2-.1-.1-.2-.2-.5-.3Z"/></svg>
+          Enviar
+      </button>
+    </div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-screen="cotizar" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h1M12 11h1M15 11h1M9 14h1M12 14h1M15 14h1M9 17h1M12 17h1M15 17h1"/></svg>
+      <span class="lbl">Cotizar</span>
+    </button>
+    <button class="tab-btn" data-screen="catalogo" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3c-1.7 0-3 1.3-3 3H6l-2 6 2 1v8h12v-8l2-1-2-6h-3c0-1.7-1.3-3-3-3Z"/></svg>
+      <span class="lbl">Catálogo</span>
+    </button>
+    <button class="tab-btn" data-screen="remeradtf" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 4 5 7v3h2v10h10V10h2V7l-3-3-2 2h-4L8 4Z"/><rect x="9.5" y="10.5" width="5" height="4" rx="0.7"/></svg>
+      <span class="lbl">DTF</span>
+    </button>
+    <button class="tab-btn" data-screen="bordados" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.2"/><path d="M7.3 12.5c1-2.3 2-2.3 3 0s2 2.3 3 0 2-2.3 3 0" stroke-width="1.4"/></svg>
+      <span class="lbl">Bordados</span>
+    </button>
+    <button class="tab-btn" data-screen="historial" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <span class="lbl">Historial</span>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const fmt = new Intl.NumberFormat('es-AR', { style:'currency', currency:'ARS', maximumFractionDigits:0 });
+  const fmtRate = new Intl.NumberFormat('es-AR', { style:'currency', currency:'ARS', minimumFractionDigits:2, maximumFractionDigits:2 });
+  function money(n){ if(!isFinite(n)) n = 0; return fmt.format(Math.round(n)); }
+  function moneyRate(n){ if(!isFinite(n)) n = 0; return fmtRate.format(n); }
+  function num(v){ const n = parseFloat(v); return isFinite(n) ? n : 0; }
+  function uid(){ return (crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36)+Math.random().toString(36).slice(2)); }
+
+  const todayLabel = document.getElementById('today-label');
+  todayLabel.textContent = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+  // ---------- storage ----------
+  const LS_PREFIX = 'costurero_v1_';
+  function lsRead(name){ try{ return JSON.parse(localStorage.getItem(LS_PREFIX+name) || '[]'); }catch(e){ return []; } }
+  function lsWrite(name, arr){ try{ localStorage.setItem(LS_PREFIX+name, JSON.stringify(arr)); }catch(e){} }
+  function lsReadObj(name){ try{ return JSON.parse(localStorage.getItem(LS_PREFIX+name) || 'null'); }catch(e){ return null; } }
+  function lsWriteObj(name, obj){ try{ localStorage.setItem(LS_PREFIX+name, JSON.stringify(obj)); }catch(e){} }
+
+  function makeLocalCollection(name){
+    return {
+      async list(){ return lsRead(name).slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)); },
+      async add(data){ const doc = { id: uid(), createdAt: Date.now(), ...data }; const arr = lsRead(name); arr.push(doc); lsWrite(name, arr); return doc; },
+      async update(id, data){ const arr = lsRead(name); const i = arr.findIndex(d=>d.id===id); if(i>=0){ arr[i] = { ...arr[i], ...data }; lsWrite(name, arr); } },
+      async remove(id){ lsWrite(name, lsRead(name).filter(d=>d.id!==id)); },
+    };
+  }
+  function makeLocalDoc(name, fallback){
+    return {
+      async get(){ return lsReadObj(name) || fallback; },
+      async set(data){ lsWriteObj(name, data); },
+    };
+  }
+
+  function makeDbCollection(col){
+    return {
+      async list(){
+        const snap = await col.orderBy('createdAt','desc').limit(500).get();
+        return snap.docs.map(d => ({ id:d.id, ...d.data() }));
+      },
+      async add(data){
+        const payload = { ...data, createdAt: Date.now() };
+        const ref = await col.add(payload);
+        return { id: ref.id, ...payload };
+      },
+      async update(id, data){ await col.doc(id).update(data); },
+      async remove(id){ await col.doc(id).delete(); },
+    };
+  }
+  function makeDbDoc(ref, fallback){
+    return {
+      async get(){ const snap = await ref.get(); return snap.exists ? snap.data() : fallback; },
+      async set(data){ await ref.set(data); },
+    };
+  }
+
+  const DEFAULT_SETTINGS = {
+    brandName: 'VINZON COTIZACIONES',
+    gastosPct: 15, margenPct: 45,
+    remeraBase: 3500, bajadaPlancha: 800, planchaDTF: 45000,
+    bordadoPrendaBase: 3500, bordadoPrecioMilPuntadas: 900, bordadoColoresIncluidos: 2,
+    bordadoRecargoColor: 300, bordadoDigitalizacion: 8000,
+  };
+
+  let catalogStore = makeLocalCollection('catalog');
+  let quotesStore = makeLocalCollection('quotes');
+  let settingsDoc = makeLocalDoc('settings', DEFAULT_SETTINGS);
+
+  async function initStorage(){
+    try{
+      if(typeof claude !== 'undefined'){
+        const db = await claude.use('db');
+        if(db){
+          catalogStore = makeDbCollection(db.collection('catalog'));
+          quotesStore = makeDbCollection(db.collection('quotes'));
+          settingsDoc = makeDbDoc(db.doc('settings/global'), DEFAULT_SETTINGS);
+        }
+      }
+    }catch(e){ /* keep local fallback */ }
+  }
+
+  // ---------- pricing ----------
+  function computePrice(item){
+    const direct = num(item.costoTela) + num(item.costoManoObra) + num(item.costoInsumos);
+    const withOverhead = direct * (1 + num(item.gastosPct)/100);
+    const price = withOverhead * (1 + num(item.margenPct)/100);
+    return { direct, withOverhead, price };
+  }
+
+  // ---------- toast ----------
+  let toastTimer = null;
+  function toast(msg){
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> el.classList.remove('show'), 2200);
+  }
+
+  // ---------- versión y actualizaciones (solo aplica en la versión ----------
+  // descargable/instalada como PWA; acá en Claude no hay service worker
+  // así que estas llamadas simplemente no hacen nada.)
+  const APP_VERSION = '1.1.0';
+  function checkForUpdates(manual){
+    if(!('serviceWorker' in navigator)){
+      if(manual) toast('Esta versión no tiene actualizaciones automáticas.');
+      return;
+    }
+    navigator.serviceWorker.getRegistration().then((reg) => {
+      if(!reg){ if(manual) toast('Todavía no hay una versión instalada para actualizar.'); return; }
+      reg.update()
+        .then(() => { if(manual) toast('Buscando actualizaciones...'); })
+        .catch(() => { if(manual) toast('No se pudo buscar. ¿Hay internet?'); });
+    }).catch(() => {});
+  }
+  function setupServiceWorker(){
+    if(!('serviceWorker' in navigator)) return;
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').then((reg) => {
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if(!nw) return;
+          // Solo es una actualización real si ya había una versión anterior
+          // controlando la página; si no, es la primera instalación.
+          const isUpdate = !!navigator.serviceWorker.controller;
+          nw.addEventListener('statechange', () => {
+            if(nw.state === 'activated' && isUpdate){
+              toast('Se instaló una actualización. Cerrá y volvé a abrir la app para verla.');
+            }
+          });
+        });
+      }).catch(() => {});
+    });
+  }
+  const checkUpdatesBtn = document.getElementById('check-updates');
+  if(checkUpdatesBtn) checkUpdatesBtn.addEventListener('click', () => checkForUpdates(true));
+  const versionLabel = document.getElementById('app-version-label');
+  if(versionLabel) versionLabel.textContent = 'v' + APP_VERSION;
+
+  // ---------- whatsapp share ----------
+  // window.open() gets silently blocked inside the sandboxed frame this page
+  // runs in when published, so we navigate via a real, user-clicked <a> tag
+  // instead (works reliably both there and in a normal mobile browser).
+  function openWhatsApp(text){
+    const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+    try{
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }catch(e){
+      try{ window.top.location.href = url; }
+      catch(e2){ try{ window.location.href = url; }catch(e3){} }
+    }
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).catch(()=>{});
+      }
+    }catch(e){ /* clipboard optional */ }
+  }
+
+  // ---------- tabs ----------
+  const screens = { cotizar: document.getElementById('screen-cotizar'), catalogo: document.getElementById('screen-catalogo'), remeradtf: document.getElementById('screen-remeradtf'), bordados: document.getElementById('screen-bordados'), historial: document.getElementById('screen-historial') };
+  const tabBtns = Array.from(document.querySelectorAll('.tab-btn'));
+  function showScreen(name){
+    Object.entries(screens).forEach(([k, el]) => { el.hidden = k !== name; });
+    tabBtns.forEach(b => b.classList.toggle('active', b.dataset.screen === name));
+    document.getElementById('summarybar').hidden = name !== 'cotizar' || currentQuote.length === 0;
+  }
+  tabBtns.forEach(b => b.addEventListener('click', () => showScreen(b.dataset.screen)));
+
+  // ---------- state ----------
+  let catalog = [];
+  let currentQuote = []; // {id, nombre, cantidad, precioUnit}
+  let dtfEstampados = []; // {id, nombre, ancho, alto}
+  let bordados = []; // {id, nombre, puntadas, colores}
+  let settings = { ...DEFAULT_SETTINGS };
+
+  // ---------- render: catalog chips (Cotizar tab) ----------
+  function renderChips(){
+    const wrap = document.getElementById('catalog-chips');
+    wrap.innerHTML = '';
+    if(catalog.length === 0){
+      const p = document.createElement('div');
+      p.style.cssText = 'font-size:12.5px;color:var(--muted);padding:6px 2px;';
+      p.textContent = 'Todavía no cargaste prendas en tu catálogo.';
+      wrap.appendChild(p);
+      return;
+    }
+    catalog.forEach(item => {
+      const { price } = computePrice(item);
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip';
+      chip.innerHTML = `<span class="name">${escapeHtml(item.nombre)}</span><span class="price num">${money(price)}</span>${item.ejemplo ? '<span class="ex">Ejemplo</span>' : ''}`;
+      chip.addEventListener('click', () => addToQuote({ nombre: item.nombre, precioUnit: price }));
+      wrap.appendChild(chip);
+    });
+  }
+
+  function addToQuote({ nombre, precioUnit }){
+    const existing = currentQuote.find(li => li.nombre === nombre && li.precioUnit === precioUnit);
+    if(existing){ existing.cantidad += 1; }
+    else{ currentQuote.push({ id: uid(), nombre, cantidad: 1, precioUnit }); }
+    renderQuote();
+  }
+
+  function renderQuote(){
+    const wrap = document.getElementById('quote-items');
+    const emptyEl = document.getElementById('quote-empty');
+    wrap.innerHTML = '';
+    emptyEl.style.display = currentQuote.length ? 'none' : 'flex';
+    currentQuote.forEach(li => {
+      const row = document.createElement('div');
+      row.className = 'lineitem';
+      row.innerHTML = `
+        <div class="li-main">
+          <div class="li-name">${escapeHtml(li.nombre)}</div>
+          <div class="li-unit num">${money(li.precioUnit)} c/u</div>
+        </div>
+        <div class="stepper">
+          <button data-act="minus" aria-label="Restar">−</button>
+          <span class="qty num">${li.cantidad}</span>
+          <button data-act="plus" aria-label="Sumar">+</button>
+        </div>
+        <div class="li-sub num">${money(li.precioUnit * li.cantidad)}</div>
+        <button class="li-del" data-act="del" aria-label="Quitar">×</button>
+      `;
+      row.querySelector('[data-act="minus"]').addEventListener('click', () => { li.cantidad = Math.max(1, li.cantidad - 1); renderQuote(); });
+      row.querySelector('[data-act="plus"]').addEventListener('click', () => { li.cantidad += 1; renderQuote(); });
+      row.querySelector('[data-act="del"]').addEventListener('click', () => { currentQuote = currentQuote.filter(x => x.id !== li.id); renderQuote(); });
+      wrap.appendChild(row);
+    });
+    updateSummary();
+  }
+
+  function quoteSubtotal(){ return currentQuote.reduce((s, li) => s + li.precioUnit * li.cantidad, 0); }
+  function quoteTotal(){
+    const sub = quoteSubtotal();
+    const desc = num(document.getElementById('descuento').value);
+    return sub * (1 - Math.min(Math.max(desc,0),100)/100);
+  }
+  function updateSummary(){
+    document.getElementById('quote-total').textContent = money(quoteTotal());
+    document.getElementById('summarybar').hidden = currentQuote.length === 0;
+  }
+  document.getElementById('descuento').addEventListener('input', updateSummary);
+
+  // ---------- custom item form (Cotizar tab) ----------
+  const customForm = document.getElementById('custom-form');
+  document.getElementById('toggle-custom-form').addEventListener('click', () => {
+    customForm.hidden = !customForm.hidden;
+    if(!customForm.hidden){
+      document.getElementById('c-gastos').value = settings.gastosPct;
+      document.getElementById('c-margen').value = settings.margenPct;
+      updateCustomPreview();
+    }
+  });
+  ['c-tela','c-mano','c-insumos','c-gastos','c-margen'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateCustomPreview);
+  });
+  function readCustomForm(){
+    return {
+      nombre: document.getElementById('c-nombre').value.trim() || 'Prenda personalizada',
+      costoTela: document.getElementById('c-tela').value,
+      costoManoObra: document.getElementById('c-mano').value,
+      costoInsumos: document.getElementById('c-insumos').value,
+      gastosPct: document.getElementById('c-gastos').value,
+      margenPct: document.getElementById('c-margen').value,
+    };
+  }
+  function updateCustomPreview(){
+    const { price } = computePrice(readCustomForm());
+    document.getElementById('c-preview').textContent = money(price);
+  }
+  document.getElementById('c-add').addEventListener('click', () => {
+    const data = readCustomForm();
+    const { price } = computePrice(data);
+    const cantidad = Math.max(1, Math.round(num(document.getElementById('c-cantidad').value)) || 1);
+    addToQuote({ nombre: data.nombre, precioUnit: price });
+    const added = currentQuote[currentQuote.length - 1];
+    if(added && added.cantidad === 1) added.cantidad = cantidad;
+    renderQuote();
+    document.getElementById('c-nombre').value = '';
+    document.getElementById('c-tela').value = 0;
+    document.getElementById('c-mano').value = 0;
+    document.getElementById('c-insumos').value = 0;
+    document.getElementById('c-cantidad').value = 1;
+    customForm.hidden = true;
+    toast('Prenda agregada al presupuesto');
+  });
+
+  // ---------- save + share ----------
+  document.getElementById('save-quote').addEventListener('click', async () => {
+    if(currentQuote.length === 0) return;
+    const cliente = document.getElementById('cliente-nombre').value.trim();
+    const descuento = num(document.getElementById('descuento').value);
+    const subtotal = quoteSubtotal();
+    const total = quoteTotal();
+    const data = {
+      cliente: cliente || null,
+      items: currentQuote.map(li => ({ nombre: li.nombre, cantidad: li.cantidad, precioUnit: li.precioUnit, subtotal: li.precioUnit * li.cantidad })),
+      descuentoPct: descuento,
+      subtotal, total,
+    };
+    try{
+      await quotesStore.add(data);
+      toast('Cotización guardada en el historial');
+      await loadHistory();
+    }catch(e){
+      toast('No se pudo guardar. Probá de nuevo.');
+    }
+  });
+
+  function buildWaText(){
+    const cliente = document.getElementById('cliente-nombre').value.trim();
+    const desc = num(document.getElementById('descuento').value);
+    const lines = [];
+    lines.push('*Presupuesto*');
+    if(cliente) lines.push(`Cliente: ${cliente}`);
+    lines.push('');
+    currentQuote.forEach(li => {
+      lines.push(`• ${li.nombre} x${li.cantidad} — ${money(li.precioUnit * li.cantidad)}`);
+    });
+    lines.push('');
+    lines.push(`Subtotal: ${money(quoteSubtotal())}`);
+    if(desc > 0) lines.push(`Descuento: ${desc}%`);
+    lines.push(`*Total: ${money(quoteTotal())}*`);
+    lines.push('');
+    lines.push(new Date().toLocaleDateString('es-AR'));
+    return lines.join('\n');
+  }
+  document.getElementById('share-wa').addEventListener('click', () => {
+    if(currentQuote.length === 0) return;
+    const text = buildWaText();
+    openWhatsApp(text);
+  });
+
+  // ---------- brand name (para poder revender esta app con otro nombre) ----------
+  function applyBrandName(name){
+    const clean = (name || '').trim() || DEFAULT_SETTINGS.brandName;
+    document.getElementById('brand-title').textContent = clean;
+    document.title = clean;
+  }
+  document.getElementById('brand-name').addEventListener('input', (e) => applyBrandName(e.target.value));
+  document.getElementById('brand-name').addEventListener('change', async (e) => {
+    settings = { ...settings, brandName: e.target.value.trim() || DEFAULT_SETTINGS.brandName };
+    applyBrandName(settings.brandName);
+    try{ await settingsDoc.set(settings); }catch(err){}
+  });
+
+  // ---------- catalog tab ----------
+  document.getElementById('def-gastos').addEventListener('change', saveSettings);
+  document.getElementById('def-margen').addEventListener('change', saveSettings);
+  async function saveSettings(){
+    settings = {
+      ...settings,
+      gastosPct: num(document.getElementById('def-gastos').value) || 0,
+      margenPct: num(document.getElementById('def-margen').value) || 0,
+    };
+    try{ await settingsDoc.set(settings); }catch(e){}
+  }
+
+  // ---------- remera DTF tab ----------
+  const DTF_SHEET_AREA = 100 * 58; // cm² por plancha (100 cm largo x 58 cm ancho)
+
+  function dtfCostoPorCm2(){
+    return num(document.getElementById('r-costo-plancha').value) / DTF_SHEET_AREA;
+  }
+  function estampadoCosto(e){
+    const area = num(e.ancho) * num(e.alto);
+    const costoDtf = area * dtfCostoPorCm2();
+    const costoBajada = num(document.getElementById('r-precio-bajada').value);
+    return { area, costoDtf, costoBajada, subtotal: costoDtf + costoBajada };
+  }
+  function dtfResumen(){
+    const base = num(document.getElementById('r-precio-base').value);
+    let sumEst = 0;
+    dtfEstampados.forEach(e => { sumEst += estampadoCosto(e).subtotal; });
+    return { base, sumEst, total: base + sumEst };
+  }
+  function renderEstampados(){
+    const wrap = document.getElementById('dtf-estampados');
+    const emptyEl = document.getElementById('dtf-empty');
+    wrap.innerHTML = '';
+    emptyEl.style.display = dtfEstampados.length ? 'none' : 'flex';
+    dtfEstampados.forEach(e => {
+      const c = estampadoCosto(e);
+      const row = document.createElement('div');
+      row.className = 'lineitem';
+      row.innerHTML = `
+        <div class="li-main">
+          <div class="li-name">${escapeHtml(e.nombre || 'Estampado')}</div>
+          <div class="li-unit num">${e.ancho}×${e.alto} cm · ${c.area.toFixed(0)} cm²</div>
+        </div>
+        <div class="li-sub num">${money(c.subtotal)}</div>
+        <button class="li-del" data-act="del" aria-label="Quitar">×</button>
+      `;
+      row.querySelector('[data-act="del"]').addEventListener('click', () => {
+        dtfEstampados = dtfEstampados.filter(x => x.id !== e.id);
+        refreshDtf();
+      });
+      wrap.appendChild(row);
+    });
+  }
+  function dtfPrecioFinal(){
+    const { base, total } = dtfResumen();
+    const margen = num(document.getElementById('r-margen').value);
+    const ganancia = base * (margen/100);
+    return { ganancia, final: total + ganancia };
+  }
+  function updateGananciaPanel(){
+    const { ganancia, final } = dtfPrecioFinal();
+    document.getElementById('r-ganancia-monto').textContent = money(ganancia);
+    document.getElementById('r-precio-final').textContent = money(final);
+  }
+  function refreshDtf(){
+    document.getElementById('r-costo-cm2').textContent = moneyRate(dtfCostoPorCm2()) + ' /cm²';
+    renderEstampados();
+    const { base, sumEst, total } = dtfResumen();
+    document.getElementById('r-sum-base').textContent = money(base);
+    document.getElementById('r-sum-estampados').textContent = money(sumEst);
+    document.getElementById('r-sum-total').textContent = money(total);
+    updateGananciaPanel();
+  }
+  async function saveDtfSettings(){
+    settings = {
+      ...settings,
+      remeraBase: num(document.getElementById('r-precio-base').value) || 0,
+      bajadaPlancha: num(document.getElementById('r-precio-bajada').value) || 0,
+      planchaDTF: num(document.getElementById('r-costo-plancha').value) || 0,
+    };
+    try{ await settingsDoc.set(settings); }catch(e){}
+  }
+  ['r-precio-base','r-precio-bajada','r-costo-plancha'].forEach(id => {
+    document.getElementById(id).addEventListener('input', refreshDtf);
+    document.getElementById(id).addEventListener('change', saveDtfSettings);
+  });
+  document.getElementById('r-margen').addEventListener('input', updateGananciaPanel);
+
+  document.getElementById('toggle-ganancia').addEventListener('click', () => {
+    const panel = document.getElementById('ganancia-panel');
+    panel.hidden = !panel.hidden;
+    if(!panel.hidden) updateGananciaPanel();
+  });
+
+  const estampadoForm = document.getElementById('estampado-form');
+  document.getElementById('toggle-estampado-form').addEventListener('click', () => {
+    estampadoForm.hidden = !estampadoForm.hidden;
+    if(!estampadoForm.hidden) updateEstampadoPreview();
+  });
+  ['e-ancho','e-alto'].forEach(id => document.getElementById(id).addEventListener('input', updateEstampadoPreview));
+  function updateEstampadoPreview(){
+    const ancho = num(document.getElementById('e-ancho').value);
+    const alto = num(document.getElementById('e-alto').value);
+    const c = estampadoCosto({ ancho, alto });
+    document.getElementById('e-area').textContent = c.area.toFixed(0) + ' cm²';
+    document.getElementById('e-preview').textContent = money(c.subtotal);
+  }
+  document.getElementById('e-add').addEventListener('click', () => {
+    const ancho = num(document.getElementById('e-ancho').value);
+    const alto = num(document.getElementById('e-alto').value);
+    if(ancho <= 0 || alto <= 0){ toast('Cargá el ancho y el alto del estampado'); return; }
+    const nombre = document.getElementById('e-nombre').value.trim();
+    dtfEstampados.push({ id: uid(), nombre, ancho, alto });
+    refreshDtf();
+    document.getElementById('e-nombre').value = '';
+    document.getElementById('e-ancho').value = 0;
+    document.getElementById('e-alto').value = 0;
+    estampadoForm.hidden = true;
+    toast('Estampado agregado');
+  });
+
+  document.getElementById('r-add-to-quote').addEventListener('click', () => {
+    const { final } = dtfPrecioFinal();
+    if(final <= 0){ toast('Cargá los costos antes de agregar'); return; }
+    const cantidad = Math.max(1, Math.round(num(document.getElementById('r-cantidad').value)) || 1);
+    const nombre = dtfEstampados.length
+      ? `Remera DTF (${dtfEstampados.length} estampado${dtfEstampados.length > 1 ? 's' : ''})`
+      : 'Remera DTF';
+    addToQuote({ nombre, precioUnit: final });
+    const added = currentQuote[currentQuote.length - 1];
+    if(added && added.cantidad === 1) added.cantidad = cantidad;
+    renderQuote();
+    toast('Agregado a la cotización');
+  });
+
+  // ---------- bordados tab ----------
+  // Se cotiza por cantidad de puntadas (el estándar de la industria): un
+  // diseño chico pero muy denso puede costar más que uno grande y liviano,
+  // algo que un precio por cm² no refleja.
+  function bordadoItemCosto(item){
+    const puntadas = num(item.puntadas);
+    const colores = num(item.colores);
+    const precioMil = num(document.getElementById('b-precio-milpuntadas').value);
+    const incluidos = num(document.getElementById('b-colores-incluidos').value);
+    const recargoColor = num(document.getElementById('b-recargo-color').value);
+    const costoPuntadas = (puntadas / 1000) * precioMil;
+    const coloresExtra = Math.max(0, colores - incluidos);
+    const costoColores = coloresExtra * recargoColor;
+    return { costoPuntadas, costoColores, coloresExtra, subtotal: costoPuntadas + costoColores };
+  }
+  function bordadoResumen(){
+    const base = num(document.getElementById('b-precio-base').value);
+    let sumBordados = 0;
+    bordados.forEach(it => { sumBordados += bordadoItemCosto(it).subtotal; });
+    const incluyeDigitalizacion = document.getElementById('b-incluye-digitalizacion').checked;
+    const digitalizacion = incluyeDigitalizacion ? num(document.getElementById('b-digitalizacion').value) : 0;
+    // La digitalización es un costo único (no se multiplica por cantidad de
+    // prendas), así que queda afuera del costo por prenda / precio final:
+    // se agrega aparte como un ítem propio al sumar a la cotización.
+    return { base, sumBordados, digitalizacion, totalPorPrenda: base + sumBordados };
+  }
+  function renderBordados(){
+    const wrap = document.getElementById('bordados-list');
+    const emptyEl = document.getElementById('bordados-empty');
+    wrap.innerHTML = '';
+    emptyEl.style.display = bordados.length ? 'none' : 'flex';
+    bordados.forEach(it => {
+      const c = bordadoItemCosto(it);
+      const row = document.createElement('div');
+      row.className = 'lineitem';
+      row.innerHTML = `
+        <div class="li-main">
+          <div class="li-name">${escapeHtml(it.nombre || 'Bordado')}</div>
+          <div class="li-unit num">${num(it.puntadas).toLocaleString('es-AR')} puntadas · ${it.colores} color(es)</div>
+        </div>
+        <div class="li-sub num">${money(c.subtotal)}</div>
+        <button class="li-del" data-act="del" aria-label="Quitar">×</button>
+      `;
+      row.querySelector('[data-act="del"]').addEventListener('click', () => {
+        bordados = bordados.filter(x => x.id !== it.id);
+        refreshBordado();
+      });
+      wrap.appendChild(row);
+    });
+  }
+  function bordadoPrecioFinal(){
+    const { base, totalPorPrenda } = bordadoResumen();
+    const margen = num(document.getElementById('b-margen').value);
+    const ganancia = base * (margen/100);
+    return { ganancia, final: totalPorPrenda + ganancia };
+  }
+  function updateGananciaPanelB(){
+    const { ganancia, final } = bordadoPrecioFinal();
+    document.getElementById('b-ganancia-monto').textContent = money(ganancia);
+    document.getElementById('b-precio-final').textContent = money(final);
+  }
+  function updateItemPreview(){
+    const puntadas = num(document.getElementById('b-puntadas').value);
+    const colores = num(document.getElementById('b-colores').value);
+    const c = bordadoItemCosto({ puntadas, colores });
+    document.getElementById('b-costo-puntadas').textContent = money(c.costoPuntadas);
+    document.getElementById('b-costo-colores').textContent = money(c.costoColores);
+    document.getElementById('b-costo-item').textContent = money(c.subtotal);
+  }
+  function refreshBordado(){
+    renderBordados();
+    const { base, sumBordados, digitalizacion, totalPorPrenda } = bordadoResumen();
+    document.getElementById('b-sum-base').textContent = money(base);
+    document.getElementById('b-sum-bordados').textContent = money(sumBordados);
+    document.getElementById('b-sum-digitalizacion').textContent = money(digitalizacion);
+    document.getElementById('b-sum-digitalizacion-row').style.display = document.getElementById('b-incluye-digitalizacion').checked ? 'flex' : 'none';
+    document.getElementById('b-sum-total').textContent = money(totalPorPrenda);
+    updateGananciaPanelB();
+    updateItemPreview();
+  }
+  async function saveBordadoSettings(){
+    settings = {
+      ...settings,
+      bordadoPrendaBase: num(document.getElementById('b-precio-base').value) || 0,
+      bordadoPrecioMilPuntadas: num(document.getElementById('b-precio-milpuntadas').value) || 0,
+      bordadoColoresIncluidos: num(document.getElementById('b-colores-incluidos').value) || 0,
+      bordadoRecargoColor: num(document.getElementById('b-recargo-color').value) || 0,
+      bordadoDigitalizacion: num(document.getElementById('b-digitalizacion').value) || 0,
+    };
+    try{ await settingsDoc.set(settings); }catch(e){}
+  }
+  ['b-precio-base','b-precio-milpuntadas','b-colores-incluidos','b-recargo-color','b-digitalizacion'].forEach(id => {
+    document.getElementById(id).addEventListener('input', refreshBordado);
+    document.getElementById(id).addEventListener('change', saveBordadoSettings);
+  });
+  document.getElementById('b-incluye-digitalizacion').addEventListener('change', refreshBordado);
+  document.getElementById('b-margen').addEventListener('input', updateGananciaPanelB);
+  document.getElementById('toggle-ganancia-b').addEventListener('click', () => {
+    const panel = document.getElementById('ganancia-panel-b');
+    panel.hidden = !panel.hidden;
+    if(!panel.hidden) updateGananciaPanelB();
+  });
+
+  // stitch estimator (estimador de puntadas por tamaño y densidad)
+  const estimadorPanel = document.getElementById('estimador-panel');
+  document.getElementById('toggle-estimador').addEventListener('click', () => {
+    estimadorPanel.hidden = !estimadorPanel.hidden;
+    if(!estimadorPanel.hidden) updateEstimadorPreview();
+  });
+  ['b-est-ancho','b-est-alto','b-est-densidad'].forEach(id => document.getElementById(id).addEventListener('input', updateEstimadorPreview));
+  function estimarPuntadas(){
+    const ancho = num(document.getElementById('b-est-ancho').value);
+    const alto = num(document.getElementById('b-est-alto').value);
+    const densidad = num(document.getElementById('b-est-densidad').value);
+    return Math.round(ancho * alto * densidad);
+  }
+  function updateEstimadorPreview(){
+    document.getElementById('b-est-preview').textContent = estimarPuntadas().toLocaleString('es-AR');
+  }
+  document.getElementById('b-est-usar').addEventListener('click', () => {
+    document.getElementById('b-puntadas').value = estimarPuntadas();
+    updateItemPreview();
+    estimadorPanel.hidden = true;
+    toast('Puntadas estimadas cargadas');
+  });
+
+  document.getElementById('b-puntadas').addEventListener('input', updateItemPreview);
+  document.getElementById('b-colores').addEventListener('input', updateItemPreview);
+  document.getElementById('b-add-item').addEventListener('click', () => {
+    const puntadas = num(document.getElementById('b-puntadas').value);
+    if(puntadas <= 0){ toast('Cargá la cantidad de puntadas'); return; }
+    const colores = num(document.getElementById('b-colores').value);
+    const nombre = document.getElementById('b-nombre').value.trim();
+    bordados.push({ id: uid(), nombre: nombre || `Bordado ${bordados.length + 1}`, puntadas, colores });
+    refreshBordado();
+    document.getElementById('b-nombre').value = '';
+    document.getElementById('b-puntadas').value = 0;
+    toast('Bordado agregado al pedido');
+  });
+
+  document.getElementById('b-add-to-quote').addEventListener('click', () => {
+    const { final } = bordadoPrecioFinal();
+    if(final <= 0){ toast('Cargá los costos antes de agregar'); return; }
+    const cantidad = Math.max(1, Math.round(num(document.getElementById('b-cantidad').value)) || 1);
+    const nombre = bordados.length
+      ? `Prenda bordada (${bordados.length} bordado${bordados.length > 1 ? 's' : ''})`
+      : 'Prenda bordada';
+    addToQuote({ nombre, precioUnit: final });
+    const added = currentQuote[currentQuote.length - 1];
+    if(added && added.cantidad === 1) added.cantidad = cantidad;
+    if(document.getElementById('b-incluye-digitalizacion').checked){
+      const digitalizacion = num(document.getElementById('b-digitalizacion').value);
+      if(digitalizacion > 0){
+        currentQuote.push({ id: uid(), nombre: 'Digitalización de diseño (única vez)', cantidad: 1, precioUnit: digitalizacion });
+      }
+    }
+    renderQuote();
+    toast('Agregado a la cotización');
+  });
+
+  function renderCatalog(){
+    const wrap = document.getElementById('catalog-list');
+    wrap.innerHTML = '';
+    if(catalog.length === 0){
+      wrap.innerHTML = '<div style="font-size:12.5px;color:var(--muted);">Agregá tu primera prenda abajo.</div>';
+      return;
+    }
+    catalog.forEach(item => {
+      const { direct, withOverhead, price } = computePrice(item);
+      const el = document.createElement('div');
+      el.className = 'catalog-item';
+      el.innerHTML = `
+        <div class="head">
+          <div>
+            <div class="name">${escapeHtml(item.nombre)} ${item.ejemplo ? '<span class="badge">Ejemplo</span>' : ''}</div>
+            <div class="cat">${escapeHtml(item.categoria || 'Sin categoría')}</div>
+          </div>
+          <div class="price num">${money(price)}</div>
+        </div>
+        <div class="breakdown" hidden>
+          <div class="kv"><span class="k">Tela + mano de obra + insumos</span><span class="v num">${money(direct)}</span></div>
+          <div class="kv"><span class="k">+ Gastos generales (${num(item.gastosPct)}%)</span><span class="v num">${money(withOverhead)}</span></div>
+          <div class="kv"><span class="k">+ Margen (${num(item.margenPct)}%)</span><span class="v num">${money(price)}</span></div>
+        </div>
+        <div class="item-actions">
+          <button data-act="detail">Ver detalle</button>
+          <button data-act="del">Eliminar</button>
+        </div>
+      `;
+      const bd = el.querySelector('.breakdown');
+      el.querySelector('[data-act="detail"]').addEventListener('click', (e) => {
+        bd.hidden = !bd.hidden;
+        e.target.textContent = bd.hidden ? 'Ver detalle' : 'Ocultar detalle';
+      });
+      el.querySelector('[data-act="del"]').addEventListener('click', async () => {
+        try{ await catalogStore.remove(item.id); }catch(e){}
+        await loadCatalog();
+        toast('Prenda eliminada del catálogo');
+      });
+      wrap.appendChild(el);
+    });
+  }
+
+  const newItemForm = document.getElementById('new-item-form');
+  document.getElementById('toggle-new-item').addEventListener('click', () => {
+    newItemForm.hidden = !newItemForm.hidden;
+    if(!newItemForm.hidden){
+      document.getElementById('n-gastos').value = settings.gastosPct;
+      document.getElementById('n-margen').value = settings.margenPct;
+      updateNewPreview();
+    }
+  });
+  document.getElementById('n-cancel').addEventListener('click', () => { newItemForm.hidden = true; });
+  ['n-tela','n-mano','n-insumos','n-gastos','n-margen'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateNewPreview);
+  });
+  function readNewForm(){
+    return {
+      nombre: document.getElementById('n-nombre').value.trim(),
+      categoria: document.getElementById('n-categoria').value.trim(),
+      costoTela: document.getElementById('n-tela').value,
+      costoManoObra: document.getElementById('n-mano').value,
+      costoInsumos: document.getElementById('n-insumos').value,
+      gastosPct: document.getElementById('n-gastos').value,
+      margenPct: document.getElementById('n-margen').value,
+    };
+  }
+  function updateNewPreview(){
+    const { price } = computePrice(readNewForm());
+    document.getElementById('n-preview').textContent = money(price);
+  }
+  document.getElementById('n-save').addEventListener('click', async () => {
+    const data = readNewForm();
+    if(!data.nombre){ toast('Ponele un nombre a la prenda'); return; }
+    try{
+      await catalogStore.add(data);
+      await loadCatalog();
+      newItemForm.hidden = true;
+      ['n-nombre','n-categoria'].forEach(id => document.getElementById(id).value = '');
+      ['n-tela','n-mano','n-insumos'].forEach(id => document.getElementById(id).value = 0);
+      toast('Prenda guardada en tu catálogo');
+    }catch(e){
+      toast('No se pudo guardar. Probá de nuevo.');
+    }
+  });
+
+  // ---------- history tab ----------
+  function renderHistory(list){
+    const wrap = document.getElementById('history-list');
+    const emptyEl = document.getElementById('history-empty');
+    wrap.innerHTML = '';
+    emptyEl.style.display = list.length ? 'none' : 'flex';
+    list.forEach(q => {
+      const el = document.createElement('div');
+      el.className = 'hist-item';
+      const when = new Date(q.createdAt || Date.now()).toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+      el.innerHTML = `
+        <div class="head">
+          <div>
+            <div class="who">${escapeHtml(q.cliente || 'Sin nombre de cliente')}</div>
+            <div class="when">${when} · ${(q.items||[]).length} prenda(s)</div>
+          </div>
+          <div class="amt num">${money(q.total)}</div>
+        </div>
+        <div class="hist-detail" hidden>
+          ${(q.items||[]).map(li => `<div class="kv"><span class="k">${escapeHtml(li.nombre)} x${li.cantidad}</span><span class="v num">${money(li.subtotal)}</span></div>`).join('')}
+          <div class="kv"><span class="k">Subtotal</span><span class="v num">${money(q.subtotal)}</span></div>
+          ${q.descuentoPct ? `<div class="kv"><span class="k">Descuento</span><span class="v num">${q.descuentoPct}%</span></div>` : ''}
+          <div class="hist-actions">
+            <button class="btn btn-wa" data-act="share">Compartir</button>
+            <button class="btn btn-secondary" data-act="del">Eliminar</button>
+          </div>
+        </div>
+      `;
+      const detail = el.querySelector('.hist-detail');
+      el.querySelector('.head').addEventListener('click', () => { detail.hidden = !detail.hidden; });
+      el.querySelector('[data-act="share"]').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const lines = ['*Presupuesto*'];
+        if(q.cliente) lines.push(`Cliente: ${q.cliente}`);
+        lines.push('');
+        (q.items||[]).forEach(li => lines.push(`• ${li.nombre} x${li.cantidad} — ${money(li.subtotal)}`));
+        lines.push('');
+        lines.push(`Subtotal: ${money(q.subtotal)}`);
+        if(q.descuentoPct) lines.push(`Descuento: ${q.descuentoPct}%`);
+        lines.push(`*Total: ${money(q.total)}*`);
+        openWhatsApp(lines.join('\n'));
+      });
+      el.querySelector('[data-act="del"]').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try{ await quotesStore.remove(q.id); }catch(err){}
+        await loadHistory();
+        toast('Cotización eliminada');
+      });
+      wrap.appendChild(el);
+    });
+  }
+
+  async function loadCatalog(){
+    try{ catalog = await catalogStore.list(); }catch(e){ catalog = []; }
+    renderChips();
+    renderCatalog();
+  }
+  async function loadHistory(){
+    let list = [];
+    try{ list = await quotesStore.list(); }catch(e){ list = []; }
+    renderHistory(list);
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  }
+
+  const EXAMPLE_CATALOG = [
+    { nombre:'Remera básica algodón', categoria:'Superior', costoTela:3200, costoManoObra:1800, costoInsumos:400, gastosPct:15, margenPct:45, ejemplo:true },
+    { nombre:'Buzo canguro frisa', categoria:'Abrigo', costoTela:6200, costoManoObra:3500, costoInsumos:900, gastosPct:15, margenPct:45, ejemplo:true },
+    { nombre:'Pantalón jogger', categoria:'Inferior', costoTela:5100, costoManoObra:3000, costoInsumos:700, gastosPct:15, margenPct:45, ejemplo:true },
+    { nombre:'Vestido básico', categoria:'Vestidos', costoTela:4800, costoManoObra:2800, costoInsumos:500, gastosPct:15, margenPct:50, ejemplo:true },
+  ];
+
+  async function boot(){
+    await initStorage();
+    try{
+      const loaded = await settingsDoc.get();
+      settings = { ...DEFAULT_SETTINGS, ...(loaded && typeof loaded === 'object' ? loaded : {}) };
+    }catch(e){ settings = { ...DEFAULT_SETTINGS }; }
+    document.getElementById('brand-name').value = settings.brandName;
+    applyBrandName(settings.brandName);
+    document.getElementById('def-gastos').value = settings.gastosPct;
+    document.getElementById('def-margen').value = settings.margenPct;
+    document.getElementById('r-precio-base').value = settings.remeraBase;
+    document.getElementById('r-precio-bajada').value = settings.bajadaPlancha;
+    document.getElementById('r-costo-plancha').value = settings.planchaDTF;
+    document.getElementById('r-margen').value = settings.margenPct;
+    document.getElementById('b-precio-base').value = settings.bordadoPrendaBase;
+    document.getElementById('b-precio-milpuntadas').value = settings.bordadoPrecioMilPuntadas;
+    document.getElementById('b-colores-incluidos').value = settings.bordadoColoresIncluidos;
+    document.getElementById('b-recargo-color').value = settings.bordadoRecargoColor;
+    document.getElementById('b-digitalizacion').value = settings.bordadoDigitalizacion;
+    document.getElementById('b-margen').value = settings.margenPct;
+
+    try{
+      const existing = await catalogStore.list();
+      if(existing.length === 0){
+        for(const item of EXAMPLE_CATALOG){ await catalogStore.add(item); }
+      }
+    }catch(e){ /* ignore seed errors */ }
+
+    await loadCatalog();
+    await loadHistory();
+    renderQuote();
+    refreshDtf();
+    refreshBordado();
+  }
+
+  boot();
+  setupServiceWorker();
+})();
+</script>
+
+</body>
+</html>
