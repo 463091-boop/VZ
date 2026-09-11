@@ -716,7 +716,7 @@
   // ---------- versión y actualizaciones (solo aplica en la versión ----------
   // descargable/instalada como PWA; acá en Claude no hay service worker
   // así que estas llamadas simplemente no hacen nada.)
-  const APP_VERSION = '1.2.0';
+  const APP_VERSION = '1.2.1';
   function checkForUpdates(manual){
     if(!('serviceWorker' in navigator)){
       if(manual) toast('Esta versión no tiene actualizaciones automáticas.');
@@ -818,6 +818,12 @@
   }
 
   function addToQuote({ nombre, precioUnit }){
+    // Redondeamos acá, una sola vez, al peso más cercano. Así el precio
+    // unitario que se ve en el presupuesto es siempre el mismo número que
+    // se usa para calcular el subtotal de la línea (precio unitario ×
+    // cantidad da exactamente el subtotal mostrado, sin diferencias de
+    // unos pesos por arrastrar decimales sin redondear).
+    precioUnit = Math.round(precioUnit);
     const existing = currentQuote.find(li => li.nombre === nombre && li.precioUnit === precioUnit);
     if(existing){ existing.cantidad += 1; }
     else{ currentQuote.push({ id: uid(), nombre, cantidad: 1, precioUnit }); }
