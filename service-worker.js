@@ -1,6 +1,6 @@
 // Service worker: cachea la app para que funcione sin internet una vez
 // que se abrió por lo menos una vez con conexión.
-const CACHE_NAME = 'cotizador-cache-v1.3.0';
+const CACHE_NAME = 'cotizador-cache-v1.3.1';
 const APP_SHELL = [
   './',
   './index.html',
