@@ -213,6 +213,42 @@
   .li-sub{ font-size:14px; font-weight:600; min-width:74px; text-align:right; }
   .li-del{ background:none; border:none; color:var(--muted); font-size:16px; cursor:pointer; padding:2px 4px; }
 
+  .field-label{ font-size:13px; color:var(--muted); display:block; margin-bottom:6px; }
+  .seg{ display:flex; gap:8px; flex-wrap:wrap; }
+  .seg-opt{ position:relative; flex:1 1 auto; display:flex; }
+  .seg-opt input{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    margin:0; opacity:0; cursor:pointer;
+  }
+  .seg-opt label{
+    flex:1 1 auto;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    padding:9px 10px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--muted);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .seg-opt input:checked + label{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .seg-opt input:focus-visible + label{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .qty-stepper{ display:flex; align-items:center; gap:8px; }
+  .qty-stepper button{
+    flex:0 0 auto;
+    width:40px; height:40px; border-radius:10px; border:1px solid var(--line);
+    background:var(--paper); color:var(--ink); font-size:19px; font-weight:600; line-height:1; cursor:pointer;
+  }
+  .qty-stepper button:disabled{ opacity:.4; cursor:not-allowed; }
+  .qty-stepper .qty-input{
+    flex:1; min-width:0; text-align:center; font-size:18px; font-weight:700;
+    border:1px solid var(--line); border-radius:10px; padding:9px 6px; background:var(--paper); color:var(--ink);
+  }
+
   .empty{
     display:flex; flex-direction:column; align-items:center; text-align:center;
     gap:8px; padding:36px 12px; color:var(--muted);
@@ -558,6 +594,125 @@
       </div>
     </section>
 
+    <!-- CONFECCIONES -->
+    <section class="screen" id="screen-confecciones" hidden>
+      <div class="card">
+        <div class="card-title">Reglas de producción</div>
+        <div style="font-size:12px;color:var(--muted);">Para cuando fabricás por mayor para otra marca o cliente: cantidad mínima por pedido y descuento por volumen.</div>
+        <label class="field"><span>Cantidad mínima por pedido</span><input type="number" id="cf-minimo" min="1" step="1" /></label>
+        <div class="row2">
+          <label class="field"><span>Descuento desde (unidades)</span><input type="number" id="cf-desc-umbral" min="0" step="1" /></label>
+          <label class="field"><span>Descuento %</span><input type="number" id="cf-desc-pct" min="0" step="1" /></label>
+        </div>
+        <label class="field"><span>Planchado y empaquetado (adicional por unidad)</span><input type="number" id="cf-planchado-precio" min="0" step="1" /></label>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Estampado — precios</div>
+        <label class="field"><span>Base (una zona, 1 color)</span><input type="number" id="cf-est-base" min="0" step="1" /></label>
+        <div class="row2">
+          <label class="field"><span>Recargo frente y dorso</span><input type="number" id="cf-est-frentedorso" min="0" step="1" /></label>
+          <label class="field"><span>Recargo por color extra</span><input type="number" id="cf-est-color" min="0" step="1" /></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Bordado — precios</div>
+        <label class="field"><span>Base (una ubicación, 1 color)</span><input type="number" id="cf-bor-base" min="0" step="1" /></label>
+        <div class="row2">
+          <label class="field"><span>Recargo segunda ubicación</span><input type="number" id="cf-bor-zona" min="0" step="1" /></label>
+          <label class="field"><span>Recargo por color extra</span><input type="number" id="cf-bor-color" min="0" step="1" /></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tus prendas para fabricar</div>
+        <div id="cf-catalog-list"></div>
+        <div class="empty" id="cf-catalog-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z"/><path d="M3 8.5V16l9 4.5 9-4.5V8.5"/></svg>
+          <div class="t1">Todavía no cargaste prendas</div>
+          <div class="t2">Agregá tu lista de precios de fábrica abajo.</div>
+        </div>
+        <button class="btn btn-secondary btn-block" id="toggle-cf-new-item" type="button">+ Agregar prenda</button>
+        <div class="inline-form" id="cf-new-item-form" hidden>
+          <div class="row2">
+            <label class="field"><span>Nombre</span><input type="text" id="cfn-nombre" placeholder="Ej: Remera Oversize" /></label>
+            <label class="field"><span>Categoría</span><input type="text" id="cfn-categoria" placeholder="Ej: Remeras" /></label>
+          </div>
+          <label class="field"><span>Precio por unidad</span><input type="number" id="cfn-precio" min="0" step="1" value="0" /></label>
+          <div class="form-actions">
+            <button class="btn btn-secondary" id="cfn-cancel" type="button" style="flex:1;">Cancelar</button>
+            <button class="btn btn-primary" id="cfn-save" type="button" style="flex:1;">Guardar prenda</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Orden de producción</div>
+        <label class="field">
+          <span>Qué fabricamos</span>
+          <select id="cf-prenda"></select>
+        </label>
+
+        <div>
+          <span class="field-label">Cantidad de unidades</span>
+          <div class="qty-stepper">
+            <button type="button" id="cf-qty-minus" aria-label="Restar">−</button>
+            <input type="number" id="cf-cantidad" class="qty-input num" min="1" step="1" />
+            <button type="button" id="cf-qty-plus" aria-label="Sumar">+</button>
+          </div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:5px;" id="cf-qty-note"></div>
+        </div>
+
+        <div>
+          <span class="field-label">Personalización</span>
+          <div class="seg">
+            <span class="seg-opt"><input type="radio" name="cf-personalizacion" id="cf-pz-ninguna" value="ninguna" checked><label for="cf-pz-ninguna">Ninguna</label></span>
+            <span class="seg-opt"><input type="radio" name="cf-personalizacion" id="cf-pz-estampado" value="estampado"><label for="cf-pz-estampado">Estampado</label></span>
+            <span class="seg-opt"><input type="radio" name="cf-personalizacion" id="cf-pz-bordado" value="bordado"><label for="cf-pz-bordado">Bordado</label></span>
+          </div>
+        </div>
+
+        <div id="cf-zona-estampado-wrap" hidden>
+          <span class="field-label">Zona</span>
+          <div class="seg">
+            <span class="seg-opt"><input type="radio" name="cf-zona-estampado" id="cf-ze-una" value="una" checked><label for="cf-ze-una">Una estampa</label></span>
+            <span class="seg-opt"><input type="radio" name="cf-zona-estampado" id="cf-ze-doble" value="doble"><label for="cf-ze-doble">Frente y dorso</label></span>
+          </div>
+        </div>
+
+        <div id="cf-zona-bordado-wrap" hidden>
+          <span class="field-label">Zona</span>
+          <div class="seg">
+            <span class="seg-opt"><input type="radio" name="cf-zona-bordado" id="cf-zb-una" value="una" checked><label for="cf-zb-una">Una ubicación</label></span>
+            <span class="seg-opt"><input type="radio" name="cf-zona-bordado" id="cf-zb-doble" value="doble"><label for="cf-zb-doble">Dos ubicaciones</label></span>
+          </div>
+        </div>
+
+        <div id="cf-colores-wrap" hidden>
+          <span class="field-label">Cantidad de colores</span>
+          <div class="seg">
+            <span class="seg-opt"><input type="radio" name="cf-colores" id="cf-col-1" value="1" checked><label for="cf-col-1">1</label></span>
+            <span class="seg-opt"><input type="radio" name="cf-colores" id="cf-col-2" value="2"><label for="cf-col-2">2</label></span>
+            <span class="seg-opt"><input type="radio" name="cf-colores" id="cf-col-3" value="3"><label for="cf-col-3">3</label></span>
+          </div>
+        </div>
+
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink);">
+          <input type="checkbox" id="cf-planchado" style="width:auto;" />
+          <span>Planchado y empaquetado <span class="num" id="cf-planchado-nota" style="color:var(--muted);"></span></span>
+        </label>
+
+        <div class="breakdown">
+          <div class="kv"><span class="k">Precio unitario</span><span class="v num" id="cf-precio-unitario">$0</span></div>
+          <div class="kv" id="cf-desc-row" style="color:var(--muted);font-size:12px;" hidden><span class="k">Descuento por volumen</span><span class="v num" id="cf-desc-monto">-$0</span></div>
+        </div>
+        <div class="kv" style="font-size:18px;"><span class="k" style="color:var(--ink);font-weight:600;">Total estimado</span><span class="v num" id="cf-total" style="font-weight:600;color:var(--accent);">$0</span></div>
+
+        <button class="btn btn-primary btn-block" id="cf-add-to-quote" type="button" style="margin-top:2px;">Agregar a cotización</button>
+      </div>
+    </section>
+
     <!-- HISTORIAL -->
     <section class="screen" id="screen-historial" hidden>
       <div class="card">
@@ -602,6 +757,10 @@
     <button class="tab-btn" data-screen="bordados" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.2"/><path d="M7.3 12.5c1-2.3 2-2.3 3 0s2 2.3 3 0 2-2.3 3 0" stroke-width="1.4"/></svg>
       <span class="lbl">Bordados</span>
+    </button>
+    <button class="tab-btn" data-screen="confecciones" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z"/><path d="M3 8.5V16l9 4.5 9-4.5V8.5"/><path d="M12 13v7.5"/></svg>
+      <span class="lbl">Confecciones</span>
     </button>
     <button class="tab-btn" data-screen="historial" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
@@ -676,10 +835,15 @@
     remeraBase: 3500, bajadaPlancha: 800, planchaDTF: 45000,
     bordadoPrendaBase: 3500, bordadoPrecioMilPuntadas: 900, bordadoColoresIncluidos: 2,
     bordadoRecargoColor: 300, bordadoDigitalizacion: 8000,
+    confeccionMinimo: 20, confeccionDescUmbral: 100, confeccionDescPct: 5,
+    confeccionPlanchado: 1500,
+    confeccionEstBase: 2500, confeccionEstFrenteDorso: 1800, confeccionEstColor: 600,
+    confeccionBorBase: 3200, confeccionBorZona: 2200, confeccionBorColor: 500,
   };
 
   let catalogStore = makeLocalCollection('catalog');
   let quotesStore = makeLocalCollection('quotes');
+  let confeccionStore = makeLocalCollection('confeccion');
   let settingsDoc = makeLocalDoc('settings', DEFAULT_SETTINGS);
 
   async function initStorage(){
@@ -689,6 +853,7 @@
         if(db){
           catalogStore = makeDbCollection(db.collection('catalog'));
           quotesStore = makeDbCollection(db.collection('quotes'));
+          confeccionStore = makeDbCollection(db.collection('confeccion'));
           settingsDoc = makeDbDoc(db.doc('settings/global'), DEFAULT_SETTINGS);
         }
       }
@@ -716,7 +881,7 @@
   // ---------- versión y actualizaciones (solo aplica en la versión ----------
   // descargable/instalada como PWA; acá en Claude no hay service worker
   // así que estas llamadas simplemente no hacen nada.)
-  const APP_VERSION = '1.2.1';
+  const APP_VERSION = '1.3.0';
   function checkForUpdates(manual){
     if(!('serviceWorker' in navigator)){
       if(manual) toast('Esta versión no tiene actualizaciones automáticas.');
@@ -779,7 +944,7 @@
   }
 
   // ---------- tabs ----------
-  const screens = { cotizar: document.getElementById('screen-cotizar'), catalogo: document.getElementById('screen-catalogo'), remeradtf: document.getElementById('screen-remeradtf'), bordados: document.getElementById('screen-bordados'), historial: document.getElementById('screen-historial') };
+  const screens = { cotizar: document.getElementById('screen-cotizar'), catalogo: document.getElementById('screen-catalogo'), remeradtf: document.getElementById('screen-remeradtf'), bordados: document.getElementById('screen-bordados'), confecciones: document.getElementById('screen-confecciones'), historial: document.getElementById('screen-historial') };
   const tabBtns = Array.from(document.querySelectorAll('.tab-btn'));
   function showScreen(name){
     Object.entries(screens).forEach(([k, el]) => { el.hidden = k !== name; });
@@ -793,6 +958,8 @@
   let currentQuote = []; // {id, nombre, cantidad, precioUnit}
   let dtfEstampados = []; // {id, nombre, ancho, alto}
   let bordados = []; // {id, nombre, puntadas, colores}
+  let confeccionCatalog = []; // {id, nombre, categoria, precio}
+  let cfCantidad = 20;
   let settings = { ...DEFAULT_SETTINGS };
 
   // ---------- render: catalog chips (Cotizar tab) ----------
@@ -1270,6 +1437,236 @@
     toast('Agregado a la cotización');
   });
 
+  // ---------- confecciones tab (producción por mayor) ----------
+  function confeccionPrendaSeleccionada(){
+    const id = document.getElementById('cf-prenda').value;
+    return confeccionCatalog.find(p => p.id === id) || null;
+  }
+
+  function confeccionTipoPersonalizacion(){
+    const el = document.querySelector('input[name="cf-personalizacion"]:checked');
+    return el ? el.value : 'ninguna';
+  }
+
+  function confeccionCostoPersonalizacion(){
+    const tipo = confeccionTipoPersonalizacion();
+    if(tipo === 'ninguna') return 0;
+    const colores = num((document.querySelector('input[name="cf-colores"]:checked') || {}).value || 1);
+    const coloresExtra = Math.max(0, colores - 1);
+    if(tipo === 'estampado'){
+      const zonaDoble = (document.querySelector('input[name="cf-zona-estampado"]:checked') || {}).value === 'doble';
+      const base = num(document.getElementById('cf-est-base').value);
+      const recargoZona = zonaDoble ? num(document.getElementById('cf-est-frentedorso').value) : 0;
+      const recargoColor = coloresExtra * num(document.getElementById('cf-est-color').value);
+      return base + recargoZona + recargoColor;
+    }
+    if(tipo === 'bordado'){
+      const zonaDoble = (document.querySelector('input[name="cf-zona-bordado"]:checked') || {}).value === 'doble';
+      const base = num(document.getElementById('cf-bor-base').value);
+      const recargoZona = zonaDoble ? num(document.getElementById('cf-bor-zona').value) : 0;
+      const recargoColor = coloresExtra * num(document.getElementById('cf-bor-color').value);
+      return base + recargoZona + recargoColor;
+    }
+    return 0;
+  }
+
+  function confeccionPrecioUnitario(){
+    const prenda = confeccionPrendaSeleccionada();
+    const base = prenda ? num(prenda.precio) : 0;
+    const personalizacion = confeccionCostoPersonalizacion();
+    const planchado = document.getElementById('cf-planchado').checked ? num(document.getElementById('cf-planchado-precio').value) : 0;
+    return base + personalizacion + planchado;
+  }
+
+  function confeccionResumen(){
+    const minimo = Math.max(1, Math.round(num(document.getElementById('cf-minimo').value)) || 1);
+    const cantidad = Math.max(minimo, Math.round(num(document.getElementById('cf-cantidad').value)) || minimo);
+    const unitario = confeccionPrecioUnitario();
+    const umbral = num(document.getElementById('cf-desc-umbral').value);
+    const descPct = num(document.getElementById('cf-desc-pct').value);
+    const aplicaDescuento = umbral > 0 && descPct > 0 && cantidad >= umbral;
+    const descuentoMonto = aplicaDescuento ? unitario * (descPct/100) : 0;
+    const unitarioFinal = unitario - descuentoMonto;
+    return { minimo, cantidad, unitario, aplicaDescuento, umbral, descPct, descuentoMonto, unitarioFinal, total: unitarioFinal * cantidad };
+  }
+
+  function populateConfeccionSelect(){
+    const sel = document.getElementById('cf-prenda');
+    const prev = sel.value;
+    sel.innerHTML = '';
+    if(confeccionCatalog.length === 0){
+      sel.innerHTML = '<option value="">Cargá una prenda primero</option>';
+      return;
+    }
+    const groups = new Map();
+    confeccionCatalog.forEach(item => {
+      const cat = item.categoria || 'Sin categoría';
+      if(!groups.has(cat)) groups.set(cat, []);
+      groups.get(cat).push(item);
+    });
+    groups.forEach((items, cat) => {
+      const og = document.createElement('optgroup');
+      og.label = cat;
+      items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = item.nombre;
+        og.appendChild(opt);
+      });
+      sel.appendChild(og);
+    });
+    if(prev && confeccionCatalog.some(p => p.id === prev)) sel.value = prev;
+  }
+
+  function renderConfeccionCatalog(){
+    const wrap = document.getElementById('cf-catalog-list');
+    const emptyEl = document.getElementById('cf-catalog-empty');
+    wrap.innerHTML = '';
+    emptyEl.style.display = confeccionCatalog.length ? 'none' : 'flex';
+    confeccionCatalog.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'catalog-item';
+      el.innerHTML = `
+        <div class="head">
+          <div>
+            <div class="name">${escapeHtml(item.nombre)} ${item.ejemplo ? '<span class="badge">Ejemplo</span>' : ''}</div>
+            <div class="cat">${escapeHtml(item.categoria || 'Sin categoría')}</div>
+          </div>
+          <div class="price num">${money(item.precio)}</div>
+        </div>
+        <div class="item-actions">
+          <button data-act="del">Eliminar</button>
+        </div>
+      `;
+      el.querySelector('[data-act="del"]').addEventListener('click', async () => {
+        try{ await confeccionStore.remove(item.id); }catch(e){}
+        await loadConfeccionCatalog();
+        toast('Prenda eliminada');
+      });
+      wrap.appendChild(el);
+    });
+  }
+
+  async function loadConfeccionCatalog(){
+    try{ confeccionCatalog = await confeccionStore.list(); }catch(e){ confeccionCatalog = []; }
+    renderConfeccionCatalog();
+    populateConfeccionSelect();
+    refreshConfeccion();
+  }
+
+  const cfNewItemForm = document.getElementById('cf-new-item-form');
+  document.getElementById('toggle-cf-new-item').addEventListener('click', () => {
+    cfNewItemForm.hidden = !cfNewItemForm.hidden;
+  });
+  document.getElementById('cfn-cancel').addEventListener('click', () => { cfNewItemForm.hidden = true; });
+  document.getElementById('cfn-save').addEventListener('click', async () => {
+    const nombre = document.getElementById('cfn-nombre').value.trim();
+    const categoria = document.getElementById('cfn-categoria').value.trim();
+    const precio = num(document.getElementById('cfn-precio').value);
+    if(!nombre){ toast('Ponele un nombre a la prenda'); return; }
+    try{
+      await confeccionStore.add({ nombre, categoria, precio });
+      await loadConfeccionCatalog();
+      cfNewItemForm.hidden = true;
+      document.getElementById('cfn-nombre').value = '';
+      document.getElementById('cfn-categoria').value = '';
+      document.getElementById('cfn-precio').value = 0;
+      toast('Prenda guardada');
+    }catch(e){
+      toast('No se pudo guardar. Probá de nuevo.');
+    }
+  });
+
+  function refreshConfeccion(){
+    const tipo = confeccionTipoPersonalizacion();
+    document.getElementById('cf-zona-estampado-wrap').hidden = tipo !== 'estampado';
+    document.getElementById('cf-zona-bordado-wrap').hidden = tipo !== 'bordado';
+    document.getElementById('cf-colores-wrap').hidden = tipo === 'ninguna';
+
+    const planchadoPrecio = num(document.getElementById('cf-planchado-precio').value);
+    document.getElementById('cf-planchado-nota').textContent = `(+${money(planchadoPrecio)}/u)`;
+
+    const minimo = Math.max(1, Math.round(num(document.getElementById('cf-minimo').value)) || 1);
+    const cantidadInput = document.getElementById('cf-cantidad');
+    cantidadInput.min = minimo;
+    if(num(cantidadInput.value) < minimo) cantidadInput.value = minimo;
+    document.getElementById('cf-qty-minus').disabled = num(cantidadInput.value) <= minimo;
+
+    const r = confeccionResumen();
+    let note = `Mínimo ${minimo} unidades`;
+    if(r.umbral > 0 && r.descPct > 0) note += ` · Descuento ${r.descPct}% desde ${r.umbral} u.`;
+    document.getElementById('cf-qty-note').textContent = note;
+
+    document.getElementById('cf-precio-unitario').textContent = money(r.unitario);
+    document.getElementById('cf-desc-row').hidden = !r.aplicaDescuento;
+    if(r.aplicaDescuento) document.getElementById('cf-desc-monto').textContent = '-' + money(r.descuentoMonto);
+    document.getElementById('cf-total').textContent = money(r.total);
+  }
+
+  [
+    'cf-minimo','cf-desc-umbral','cf-desc-pct','cf-planchado-precio',
+    'cf-est-base','cf-est-frentedorso','cf-est-color',
+    'cf-bor-base','cf-bor-zona','cf-bor-color',
+  ].forEach(id => {
+    document.getElementById(id).addEventListener('input', refreshConfeccion);
+    document.getElementById(id).addEventListener('change', saveConfeccionSettings);
+  });
+  async function saveConfeccionSettings(){
+    settings = {
+      ...settings,
+      confeccionMinimo: num(document.getElementById('cf-minimo').value) || 1,
+      confeccionDescUmbral: num(document.getElementById('cf-desc-umbral').value) || 0,
+      confeccionDescPct: num(document.getElementById('cf-desc-pct').value) || 0,
+      confeccionPlanchado: num(document.getElementById('cf-planchado-precio').value) || 0,
+      confeccionEstBase: num(document.getElementById('cf-est-base').value) || 0,
+      confeccionEstFrenteDorso: num(document.getElementById('cf-est-frentedorso').value) || 0,
+      confeccionEstColor: num(document.getElementById('cf-est-color').value) || 0,
+      confeccionBorBase: num(document.getElementById('cf-bor-base').value) || 0,
+      confeccionBorZona: num(document.getElementById('cf-bor-zona').value) || 0,
+      confeccionBorColor: num(document.getElementById('cf-bor-color').value) || 0,
+    };
+    try{ await settingsDoc.set(settings); }catch(e){}
+  }
+
+  document.getElementById('cf-prenda').addEventListener('change', refreshConfeccion);
+  document.querySelectorAll('input[name="cf-personalizacion"]').forEach(el => el.addEventListener('change', refreshConfeccion));
+  document.querySelectorAll('input[name="cf-zona-estampado"]').forEach(el => el.addEventListener('change', refreshConfeccion));
+  document.querySelectorAll('input[name="cf-zona-bordado"]').forEach(el => el.addEventListener('change', refreshConfeccion));
+  document.querySelectorAll('input[name="cf-colores"]').forEach(el => el.addEventListener('change', refreshConfeccion));
+  document.getElementById('cf-planchado').addEventListener('change', refreshConfeccion);
+  document.getElementById('cf-cantidad').addEventListener('input', refreshConfeccion);
+
+  document.getElementById('cf-qty-minus').addEventListener('click', () => {
+    const minimo = Math.max(1, Math.round(num(document.getElementById('cf-minimo').value)) || 1);
+    const cantidadInput = document.getElementById('cf-cantidad');
+    cantidadInput.value = Math.max(minimo, (Math.round(num(cantidadInput.value)) || minimo) - 1);
+    refreshConfeccion();
+  });
+  document.getElementById('cf-qty-plus').addEventListener('click', () => {
+    const cantidadInput = document.getElementById('cf-cantidad');
+    const minimo = Math.max(1, Math.round(num(document.getElementById('cf-minimo').value)) || 1);
+    cantidadInput.value = (Math.round(num(cantidadInput.value)) || minimo) + 1;
+    refreshConfeccion();
+  });
+
+  document.getElementById('cf-add-to-quote').addEventListener('click', () => {
+    const prenda = confeccionPrendaSeleccionada();
+    if(!prenda){ toast('Cargá una prenda en tu lista primero'); return; }
+    const r = confeccionResumen();
+    if(r.unitarioFinal <= 0){ toast('Revisá los precios cargados'); return; }
+    const tipo = confeccionTipoPersonalizacion();
+    const extras = [];
+    if(tipo === 'estampado') extras.push('estampado');
+    if(tipo === 'bordado') extras.push('bordado');
+    if(document.getElementById('cf-planchado').checked) extras.push('planchado');
+    const nombre = extras.length ? `${prenda.nombre} (${extras.join(' + ')})` : prenda.nombre;
+    addToQuote({ nombre, precioUnit: r.unitarioFinal });
+    const added = currentQuote[currentQuote.length - 1];
+    if(added && added.cantidad === 1) added.cantidad = r.cantidad;
+    renderQuote();
+    toast('Agregado a la cotización');
+  });
+
   function renderCatalog(){
     const wrap = document.getElementById('catalog-list');
     wrap.innerHTML = '';
@@ -1430,6 +1827,28 @@
     { nombre:'Vestido básico', categoria:'Vestidos', costoTela:4800, costoManoObra:2800, costoInsumos:500, gastosPct:15, margenPct:50, ejemplo:true },
   ];
 
+  // Lista de precios de fábrica para cotizar producción por mayor (pestaña
+  // Confecciones). Son valores de ejemplo: reemplazalos por tu propia lista
+  // de precios vigente.
+  const EXAMPLE_CONFECCION_CATALOG = [
+    { nombre:'Remera Regular', categoria:'Remeras', precio:8900, ejemplo:true },
+    { nombre:'Remera Oversize', categoria:'Remeras', precio:9400, ejemplo:true },
+    { nombre:'Remera Oversize Rústico', categoria:'Remeras', precio:9800, ejemplo:true },
+    { nombre:'Remera Boxy', categoria:'Remeras', precio:9200, ejemplo:true },
+    { nombre:'Remera Mujer Regular', categoria:'Remeras', precio:8900, ejemplo:true },
+    { nombre:'Remera Mujer Oversize', categoria:'Remeras', precio:9400, ejemplo:true },
+    { nombre:'Buzo Regular', categoria:'Buzos cuello redondo', precio:13800, ejemplo:true },
+    { nombre:'Buzo Oversize', categoria:'Buzos cuello redondo', precio:14500, ejemplo:true },
+    { nombre:'Buzo Boxy', categoria:'Buzos cuello redondo', precio:14200, ejemplo:true },
+    { nombre:'Buzo capucha Regular', categoria:'Buzos con capucha', precio:15200, ejemplo:true },
+    { nombre:'Buzo capucha Oversize', categoria:'Buzos con capucha', precio:15900, ejemplo:true },
+    { nombre:'Buzo capucha Boxy', categoria:'Buzos con capucha', precio:15600, ejemplo:true },
+    { nombre:'Buzo Mujer Oversize', categoria:'Buzos con capucha', precio:15200, ejemplo:true },
+    { nombre:'Campera Regular', categoria:'Camperas', precio:23500, ejemplo:true },
+    { nombre:'Campera Oversize', categoria:'Camperas', precio:24800, ejemplo:true },
+    { nombre:'Campera Boxy', categoria:'Camperas', precio:24200, ejemplo:true },
+  ];
+
   async function boot(){
     await initStorage();
     try{
@@ -1451,6 +1870,18 @@
     document.getElementById('b-digitalizacion').value = settings.bordadoDigitalizacion;
     document.getElementById('b-margen').value = settings.margenPct;
 
+    document.getElementById('cf-minimo').value = settings.confeccionMinimo;
+    document.getElementById('cf-desc-umbral').value = settings.confeccionDescUmbral;
+    document.getElementById('cf-desc-pct').value = settings.confeccionDescPct;
+    document.getElementById('cf-planchado-precio').value = settings.confeccionPlanchado;
+    document.getElementById('cf-est-base').value = settings.confeccionEstBase;
+    document.getElementById('cf-est-frentedorso').value = settings.confeccionEstFrenteDorso;
+    document.getElementById('cf-est-color').value = settings.confeccionEstColor;
+    document.getElementById('cf-bor-base').value = settings.confeccionBorBase;
+    document.getElementById('cf-bor-zona').value = settings.confeccionBorZona;
+    document.getElementById('cf-bor-color').value = settings.confeccionBorColor;
+    document.getElementById('cf-cantidad').value = settings.confeccionMinimo;
+
     try{
       const existing = await catalogStore.list();
       if(existing.length === 0){
@@ -1458,8 +1889,16 @@
       }
     }catch(e){ /* ignore seed errors */ }
 
+    try{
+      const existingCf = await confeccionStore.list();
+      if(existingCf.length === 0){
+        for(const item of EXAMPLE_CONFECCION_CATALOG){ await confeccionStore.add(item); }
+      }
+    }catch(e){ /* ignore seed errors */ }
+
     await loadCatalog();
     await loadHistory();
+    await loadConfeccionCatalog();
     renderQuote();
     refreshDtf();
     refreshBordado();
